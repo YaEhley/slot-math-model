@@ -41,7 +41,7 @@
   <div class="row"><button id="spinBtn">SPIN</button></div>
   <div class="stats" id="stats"></div>
 </div>
-
+Спинов
 <script>
 // Same reel strip and paytable as config.py
 const REEL = [].concat(
@@ -82,7 +82,7 @@ function render() {
   const rtp = totalBet ? (100 * totalWin / totalBet).toFixed(1) + "%" : "—";
   const theory = theoryRtp ? (100 * theoryRtp).toFixed(2) + "%" : "…";
   document.getElementById("stats").innerHTML =
-    `Спинов: ${spins}<br>RTP сессии: ${rtp}<br>Theoretical RTP: ${theory}`;
+    `Spins: ${spins}<br>Session RTP: ${rtp}<br>Theoretical RTP: ${theory}`;
 }
 
 async function doSpin() {
