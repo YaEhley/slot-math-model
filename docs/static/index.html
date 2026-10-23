@@ -39,11 +39,25 @@
       </select>
     </div>
   </div>
-  <div class="row"><button id="spinBtn">SPIN</button><a href="/api/export">Скачать Excel</a></div>
   <div class="stats" id="stats"></div>
 </div>
 
 <script>
+const REEL = [].concat(
+  Array(1).fill("7"), Array(2).fill("BAR"), Array(3).fill("BELL"),
+  Array(5).fill("CHERRY"), Array(9).fill("LEMON"));
+const PAYTABLE = { "7": 790, "BAR": 154, "BELL": 46, "CHERRY": 12, "LEMON": 4 };
+const THEORY_RTP = 0.96;
+
+const pick = () => REEL[Math.floor(Math.random() * REEL.length)];
+
+function localSpin(bet) {
+  const symbols = [pick(), pick(), pick()];
+  const win = (symbols[0] === symbols[1] && symbols[1] === symbols[2])
+    ? bet * PAYTABLE[symbols[0]] : 0;
+  return { symbols, win };
+}
+
 const LABEL = { "7": "7", "BAR": "BAR", "BELL": "🔔", "CHERRY": "🍒", "LEMON": "🍋" };
 const SYMBOLS = Object.keys(LABEL);
 const START_CREDITS = 1000;
@@ -84,16 +98,7 @@ async function doSpin() {
   const timers = reels.map(r => setInterval(
     () => show(r, SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]), 70));
 
-  let data;
-  try {
-    const resp = await fetch("/api/spin", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bet })
-    });
-    if (!resp.ok) throw new Error("HTTP " + resp.status);
-    data = await resp.json();
-  } catch (e) {
+    const data = localSpin(bet); {
     timers.forEach(clearInterval);
     reels.forEach(r => r.classList.remove("spinning"));
     credits += bet;
@@ -118,7 +123,7 @@ async function doSpin() {
 
 btn.addEventListener("click", doSpin);
 
-fetch("/api/info").then(r => r.json()).then(info => { theoryRtp = info.rtp; render(); });
+theoryRtp = THEORY_RTP;
 render();
 </script>
 </body>
