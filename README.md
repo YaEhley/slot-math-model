@@ -1,7 +1,9 @@
 # Simple 3-Reel Slot: Math Model
 
 Math model of a 3-reel, 1-payline slot (payout only for three identical symbols),
-with exact analytics, Monte Carlo simulation, PAR sheet, Excel export and a browser demo.
+with exact analytics, Monte Carlo simulation, PAR sheet.
+**Live demo:** [yaehley.github.io/slot-math-model](https://yaehley.github.io/slot-math-model/)
+(a JavaScript port of the model for illustration; the actual math, tests and simulations are in Python)
 
 ## Features
 - Exact RTP, hit frequency and standard deviation (full enumeration + closed-form formulas)
