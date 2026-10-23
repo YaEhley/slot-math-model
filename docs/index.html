@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slot</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #1b1b2f; color: #eee;
+         display: flex; flex-direction: column; align-items: center; margin: 0; padding: 24px; }
+  .machine { background: #2a2a45; border-radius: 16px; padding: 24px; box-shadow: 0 8px 24px #0008; }
+  .reels { display: flex; gap: 12px; margin-bottom: 16px; }
+  .reel { width: 100px; height: 120px; background: #fff; color: #222; border-radius: 10px;
+          display: flex; align-items: center; justify-content: center; font-size: 56px; font-weight: 700; }
+  .reel.spinning { filter: blur(1.5px); }
+  .reel.sym-7 { color: #d22; font-size: 72px; }
+  .reel.sym-BAR { font-size: 34px; letter-spacing: 2px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0; }
+  button, select { font-size: 16px; padding: 8px 14px; border-radius: 8px; border: none; }
+  #spinBtn { background: #f5b301; font-weight: 700; cursor: pointer; }
+  #spinBtn:disabled { opacity: .5; cursor: default; }
+  #msg { height: 28px; text-align: center; font-size: 20px; font-weight: 700; color: #7CFC9A; }
+  .stats { font-size: 14px; color: #bbb; line-height: 1.6; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="machine">
+  <div class="reels">
+    <div class="reel" id="r0">?</div>
+    <div class="reel" id="r1">?</div>
+    <div class="reel" id="r2">?</div>
+  </div>
+  <div id="msg"></div>
+  <div class="row">
+    <div>Credits: <b id="credits"></b></div>
+    <div>Bet:
+      <select id="bet">
+        <option>1</option><option>5</option><option>10</option>
+      </select>
+    </div>
+  </div>
+  <div class="row"><button id="spinBtn">SPIN</button></div>
+  <div class="stats" id="stats"></div>
+</div>
+
+<script>
+// Same reel strip and paytable as config.py
+const REEL = [].concat(
+  Array(1).fill("7"), Array(2).fill("BAR"), Array(3).fill("BELL"),
+  Array(5).fill("CHERRY"), Array(9).fill("LEMON"));
+const PAYTABLE = { "7": 790, "BAR": 154, "BELL": 46, "CHERRY": 12, "LEMON": 4 };
+const THEORY_RTP = 0.96;
+
+const pick = () => REEL[Math.floor(Math.random() * REEL.length)];
+
+function localSpin(bet) {
+  const symbols = [pick(), pick(), pick()];
+  const win = (symbols[0] === symbols[1] && symbols[1] === symbols[2])
+    ? bet * PAYTABLE[symbols[0]] : 0;
+  return { symbols, win };
+}
+
+const LABEL = { "7": "7", "BAR": "BAR", "BELL": "🔔", "CHERRY": "🍒", "LEMON": "🍋" };
+const SYMBOLS = Object.keys(LABEL);
+const START_CREDITS = 1000;
+
+const reels = [0, 1, 2].map(i => document.getElementById("r" + i));
+const btn = document.getElementById("spinBtn");
+const betSel = document.getElementById("bet");
+const msg = document.getElementById("msg");
+
+let credits = START_CREDITS, spins = 0, totalBet = 0, totalWin = 0, theoryRtp = null;
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function show(el, sym) {
+  el.textContent = LABEL[sym];
+  el.className = "reel sym-" + sym;
+}
+
+function render() {
+  document.getElementById("credits").textContent = credits;
+  const rtp = totalBet ? (100 * totalWin / totalBet).toFixed(1) + "%" : "—";
+  const theory = theoryRtp ? (100 * theoryRtp).toFixed(2) + "%" : "…";
+  document.getElementById("stats").innerHTML =
+    `Спинов: ${spins}<br>RTP сессии: ${rtp}<br>Theoretical RTP: ${theory}`;
+}
+
+async function doSpin() {
+  const bet = Number(betSel.value);
+  if (bet > credits) { msg.textContent = "Not enough credits"; return; }
+
+  btn.disabled = true;
+  msg.textContent = "";
+  credits -= bet;
+  render();
+
+  // Decorative animation: random symbols flash until each reel stops
+  reels.forEach(r => r.classList.add("spinning"));
+  const timers = reels.map(r => setInterval(
+    () => show(r, SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]), 70));
+
+  const data = localSpin(bet);
+
+  // The reels stop one by one on the symbols of the real outcome
+  for (let i = 0; i < 3; i++) {
+    await sleep(500 + i * 400);
+    clearInterval(timers[i]);
+    show(reels[i], data.symbols[i]);
+  } 
+
+  spins++; totalBet += bet; totalWin += data.win; credits += data.win;
+  msg.textContent = data.win > 0 ? `Win: ${data.win}!` : "";
+  render();
+  btn.disabled = false;
+}
+
+btn.addEventListener("click", doSpin);
+
+theoryRtp = THEORY_RTP;
+render();
+</script>
+</body>
+</html>
