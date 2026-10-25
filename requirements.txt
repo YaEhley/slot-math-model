@@ -1,7 +1,4 @@
 pandas
 openpyxl
-matplotlib
-fastapi
-uvicorn
-pytest
 numpy
+pytest

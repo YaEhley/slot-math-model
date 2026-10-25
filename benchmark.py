@@ -5,8 +5,7 @@ import time
 
 import numpy as np
 
-from slot import simulate
-from fast_sim import simulate_fast
+from simulate import simulate_slow, simulate_fast
 
 N = 10_000_000          # same number of spins for every implementation
 CHUNK = 2_500_000       # 4 chunks, so each of the 4 workers gets work
@@ -15,7 +14,7 @@ REPEATS = 5
 SEED = 42
 
 IMPLEMENTATIONS = {
-    "Pure Python": lambda: simulate(N, seed=SEED),
+    "Pure Python": lambda: simulate_slow(N, seed=SEED),
     "NumPy, 1 worker": lambda: simulate_fast(N, seed=SEED, chunk=CHUNK, workers=1),
     f"NumPy, {WORKERS} workers": lambda: simulate_fast(N, seed=SEED, chunk=CHUNK, workers=WORKERS),
 }

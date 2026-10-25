@@ -5,13 +5,13 @@ with exact analytics, Monte Carlo simulation, PAR sheet.
 **Live demo:** [yaehley.github.io/slot-math-model](https://yaehley.github.io/slot-math-model/)
 (a JavaScript port of the model for illustration; the actual math, tests and simulations are in Python)
 
-## Features
-- Exact RTP, hit frequency and standard deviation (full enumeration + closed-form formulas)
-- Monte Carlo simulation and comparison against theory
-- Paytable tuning to a target RTP
-- PAR sheet export to Excel
-- FastAPI server + browser UI (outcomes are computed on the server)
-- Unit tests (pytest)
+## Structure
+| File | Role |
+|---|---|
+| `config.py` | reel strips (symbol weights), paytable, tuning parameters |
+| `game.py` | logic of one round |
+| `simulate.py` | Monte Carlo: reference loop and vectorized NumPy version |
+| `stats.py` | exact analytics, paytable tuning, validation, PAR sheet |
 
 ## Setup
 ```bash
@@ -22,11 +22,9 @@ pip install -r requirements.txt
 
 ## Usage
 ```bash
-python slot.py                # analytics vs simulation
-python analysis.py            # convergence and distribution plots
-python tuning.py              # paytable tuning for target RTP
-python par_sheet.py           # PAR sheet -> par_sheet.xlsx
-uvicorn server:app --reload   # browser demo at http://127.0.0.1:8000
+python stats.py        # tuning, validation on 100M spins, PAR sheet -> par_sheet.xlsx
+python benchmark.py    # speed comparison
+pytest                 # tests
 ```
 
 ## How to run tests
@@ -128,4 +126,3 @@ Simulation result (1,000,000 spins, seed 42): RTP = 0.955208 , hit frequency = 0
 
 ## Limitations
 - RNG is Python's `random` (not certified).
-- Demo player balance is kept in the browser, not on the server.
