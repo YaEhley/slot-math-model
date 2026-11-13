@@ -31,6 +31,13 @@ python benchmark.py           # speed comparison, takes a few minutes
 pytest                        # run the tests
 python benchmark.py scaling   # scaling with the number of spins
 ```
+## Generated Results
+
+The project automatically generates an Excel PAR sheet
+containing theoretical slot statistics and Monte Carlo
+simulation results.
+
+[Download PAR Sheet](results/par_sheet.xlsx)
 
 ## Math
 
